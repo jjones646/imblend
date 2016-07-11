@@ -1,5 +1,5 @@
 # HW 4
-# Your Name
+# Jonathan Jones
 
 import numpy as np
 import scipy as sp
@@ -145,14 +145,14 @@ def laplPyramid(gaussPyr):
 
   Returns:
     output (list): A laplacian pyramid of the same size as gaussPyr. This
-                   pyramid should be represented in the same way as guassPyr, 
+                   pyramid should be represented in the same way as guassPyr,
                    as a list of arrays. Every element of the list now
                    corresponds to a layer of the laplacian pyramid, containing
                    the difference between two layers of the gaussian pyramid.
 
            output[k] = gauss_pyr[k] - expand(gauss_pyr[k + 1])
 
-           Note: The last element of output should be identical to the last 
+           Note: The last element of output should be identical to the last
            layer of the input pyramid since it cannot be subtracted anymore.
 
   Note: Sometimes the size of the expanded image will be larger than the given
@@ -188,11 +188,11 @@ def blend(laplPyrWhite, laplPyrBlack, gaussPyrMask):
   The pyramids will have the same number of levels. Furthermore, each layer
   is guaranteed to have the same shape as previous levels.
 
-  You should return a laplacian pyramid that is of the same dimensions as the 
+  You should return a laplacian pyramid that is of the same dimensions as the
   input pyramids. Every layer should be an alpha blend of the corresponding
   layers of the input pyramids, weighted by the gaussian mask. This means the
   following computation for each layer of the pyramid:
-    output[i, j] = current_mask[i, j] * white_image[i, j] + 
+    output[i, j] = current_mask[i, j] * white_image[i, j] +
                    (1 - current_mask[i, j]) * black_image[i, j]
   Therefore:
     Pixels where current_mask == 1 should be taken completely from the white
@@ -203,7 +203,7 @@ def blend(laplPyrWhite, laplPyrBlack, gaussPyrMask):
   Note: current_mask, white_image, and black_image are variables that refer to
   the image in the current layer we are looking at. You do this computation for
   every layer of the pyramid.
-  """ 
+  """
 
   blended_pyr = []
   # WRITE YOUR CODE HERE.
