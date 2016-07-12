@@ -35,9 +35,8 @@ GENERAL RULES:
 """
 
 
-def generateKernel(parameter):
-    """ Return a 5x5 generating kernel
- based on an input parameter.
+def generatingKernel(parameter):
+    """ Return a 5x5 generating kernel based on an input parameter.
 
     Note: This function is provided for you, do not change it.
 
@@ -72,8 +71,8 @@ def reduce(image):
         For instance, if the input is 5x7, the output will be 3x4.
 
     """
-    kern = generateKernel(0.4)
-    return cv2.resize(scipy.signal.convolve(image, kern, 'same'), None, fx=0.5, fy=0.5)
+    k = generatingKernel(0.4)
+    return sp.signal.convolve2d(image, k, 'same')[::2, ::2]
 
 
 def expand(image):
@@ -101,8 +100,14 @@ def expand(image):
     Returns:
       output (numpy.ndarray): an image of shape (2*r, 2*c)
     """
-    kern = generatingKernel(0.4)
-    return cv2.resize(scipy.signal.convolve(image, kern, 'same'), None, fx=2, fy=2)
+    k = generatingKernel(0.4)
+    # double the number of elements in fist 2 dimensions
+    image = np.resize(image, [int(2 * d) for d in image.shape[:2]])
+    # pad new entries with zeros
+    for r in range(0, int(image.shape[0] / 2)): image[2 * r + 1, ::] = image[2 * r, ::]
+    # for c in range(0, int(image.shape[1] / 2)): image[::, 2 * c + 1] = image[::, 2 * c]
+    print(image)
+    return sp.signal.convolve2d(image, k, 'same')
 
 
 def gaussPyramid(image, levels):
@@ -130,6 +135,12 @@ def gaussPyramid(image, levels):
     Consult the lecture and README for more details about Gaussian Pyramids.
     """
     output = [image]
+
+    for lvl in range(levels):
+        last_img = output[-1]
+        output.append(reduce(last_img))
+        print(lvl)
+        print(output[-1])
 
     return output
 
@@ -203,7 +214,6 @@ def blend(laplPyrWhite, laplPyrBlack, gaussPyrMask):
     the image in the current layer we are looking at. You do this computation for
     every layer of the pyramid.
     """
-
     blended_pyr = []
 
     return blended_pyr
