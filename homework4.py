@@ -35,7 +35,7 @@ GENERAL RULES:
 """
 
 
-def generatingKernel(parameter):
+def generateKernel(parameter):
     """ Return a 5x5 generating kernel
  based on an input parameter.
 

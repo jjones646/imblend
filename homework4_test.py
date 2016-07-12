@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 import sys
 import os
 import numpy as np
@@ -6,7 +8,7 @@ from scipy.stats import norm
 from scipy.signal import convolve2d
 import math
 
-import .homework4
+import homework4 as assignment4
 
 
 def viz_gauss_pyramid(pyramid):
