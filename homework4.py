@@ -102,8 +102,10 @@ def expand(image):
     """
     k = generatingKernel(0.4)
     img = np.zeros([int(2 * d) for d in image.shape[:2]])
-    for r in range(image.shape[0]): img[2 * r, ::2] = image[r, ::]
-    for c in range(image.shape[1]): img[::2, 2 * c] = image[::, c]
+    for r in range(image.shape[0]):
+        img[2 * r, ::2] = image[r, ::]
+    for c in range(image.shape[1]):
+        img[::2, 2 * c] = image[::, c]
     return 4 * sp.signal.convolve2d(img, k, 'same')
 
 
@@ -132,7 +134,8 @@ def gaussPyramid(image, levels):
     Consult the lecture and README for more details about Gaussian Pyramids.
     """
     output = [image]
-    for _ in range(levels): output.append(reduce(output[-1]))
+    for _ in range(levels):
+        output.append(reduce(output[-1]))
     return output
 
 
@@ -211,17 +214,12 @@ def blend(laplPyrWhite, laplPyrBlack, gaussPyrMask):
     """
     blended_pyr = []
     for i in range(len(gaussPyrMask)):
-        img_wht = laplPyrWhite[i]
-        img_blk = laplPyrBlack[i]
-        msk = gaussPyrMask[i]
-        # create a 50/50 blended image
-        img_blend = cv2.addWeighted(img_wht, 0.5, img_blk, 0.5, 0)
+        img_wht = laplPyrWhite[i]; img_blk = laplPyrBlack[i]; msk = gaussPyrMask[i]
+        img_blend = np.zeros(msk.shape)
         for r in range(msk.shape[0]):
             for c in range(msk.shape[1]):
-                if msk[r,c] == 0:
-                    img_blend[r,c] = img_blk[r,c]
-                elif msk[r,c] == 1:
-                    img_blend[r,c] = img_wht[r,c]
+                img_blend[r, c] = msk[r, c] * img_wht[r, c] + \
+                    (1 - msk[r, c]) * img_blk[r, c]
         blended_pyr.append(img_blend)
     return blended_pyr
 
