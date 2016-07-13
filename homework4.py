@@ -101,13 +101,10 @@ def expand(image):
       output (numpy.ndarray): an image of shape (2*r, 2*c)
     """
     k = generatingKernel(0.4)
-    # double the number of elements in fist 2 dimensions
-    image = np.resize(image, [int(2 * d) for d in image.shape[:2]])
-    # pad new entries with zeros
-    for r in range(0, int(image.shape[0] / 2)): image[2 * r + 1, ::] = image[2 * r, ::]
-    # for c in range(0, int(image.shape[1] / 2)): image[::, 2 * c + 1] = image[::, 2 * c]
-    print(image)
-    return sp.signal.convolve2d(image, k, 'same')
+    img = np.zeros([int(2 * d) for d in image.shape[:2]])
+    for r in range(image.shape[0]): img[2 * r, ::2] = image[r, ::]
+    for c in range(image.shape[1]): img[::2, 2 * c] = image[::, c]
+    return 4 * sp.signal.convolve2d(img, k, 'same')
 
 
 def gaussPyramid(image, levels):
@@ -135,13 +132,7 @@ def gaussPyramid(image, levels):
     Consult the lecture and README for more details about Gaussian Pyramids.
     """
     output = [image]
-
-    for lvl in range(levels):
-        last_img = output[-1]
-        output.append(reduce(last_img))
-        print(lvl)
-        print(output[-1])
-
+    for _ in range(levels): output.append(reduce(output[-1]))
     return output
 
 
@@ -177,7 +168,11 @@ def laplPyramid(gaussPyr):
     removing the last row/column.
     """
     output = []
-
+    for i in range(len(gaussPyr) - 1):
+        nr, nc = gaussPyr[i].shape[:2]
+        B = expand(gaussPyr[i + 1])[:nr, :nc]
+        output.append(gaussPyr[i] - B)
+    output.append(gaussPyr[-1])
     return output
 
 
@@ -215,7 +210,19 @@ def blend(laplPyrWhite, laplPyrBlack, gaussPyrMask):
     every layer of the pyramid.
     """
     blended_pyr = []
-
+    for i in range(len(gaussPyrMask)):
+        img_wht = laplPyrWhite[i]
+        img_blk = laplPyrBlack[i]
+        msk = gaussPyrMask[i]
+        # create a 50/50 blended image
+        img_blend = cv2.addWeighted(img_wht, 0.5, img_blk, 0.5, 0)
+        for r in range(msk.shape[0]):
+            for c in range(msk.shape[1]):
+                if msk[r,c] == 0:
+                    img_blend[r,c] = img_blk[r,c]
+                elif msk[r,c] == 1:
+                    img_blend[r,c] = img_wht[r,c]
+        blended_pyr.append(img_blend)
     return blended_pyr
 
 
@@ -243,3 +250,8 @@ def collapse(pyramid):
     6x8. If the next layer is of size 5x7, crop the expanded image to size 5x7
     by removing the last row/column.
     """
+    pyramid.reverse()
+    for i in range(len(pyramid) - 1):
+        nr, nc = (len(pyramid[i + 1]), len(pyramid[i + 1][0]))
+        pyramid[i + 1] += expand(pyramid[i])[:nr, :nc]
+    return pyramid[-1]
